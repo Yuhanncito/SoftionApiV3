@@ -1,7 +1,7 @@
 import  express  from "express";
 import morgan from "morgan";
 import cors from 'cors';
-
+import './libs/initialSetup';
 //routes
 import products from "./routes/producs.routes"
 import user from "./routes/user.routes"
