@@ -8,7 +8,8 @@ const router = Router();
 router.get('/:projectRelation',jws.verifyToken,tasksCotroller.getTaskByProjectId);
 router.post('/newTask',[jws.verifyToken, role.verifyRole],tasksCotroller.insertTask);
 router.put('/:id',[jws.verifyToken, role.verifyRole],tasksCotroller.udpateTask);
-router.delete('/:id',[jws.verifyToken, role.verifyRole],tasksCotroller.deleteTask)
+router.delete('/:id',[jws.verifyToken, role.verifyRole],tasksCotroller.deleteTask);
+router.get('/',jws.verifyToken,tasksCotroller.getTasksPending);
 
 
 export default router;

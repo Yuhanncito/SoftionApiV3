@@ -2,6 +2,7 @@ import Task from '../models/task.model';
 import Project from '../models/project.model';
 import Logs from '../models/logs.model';
 import { getUserId } from '../middlewares/authJWT';
+import WorkSpace from '../models/workSpace.model';
 
 export const getTaskByProjectId = async (req,res) =>{
     try {
@@ -132,3 +133,28 @@ export const deleteTask = async(req,res)=>{
     }
 }
 
+export const getTasksPending = async(req,res)=>{
+    try {
+        const token = req.headers["x-access-token"];
+        const user = await getUserId(token);
+
+        if(!user) return res.status(400).json({message:"error"})
+
+        const workSpace = await WorkSpace.findOne({propetaryUser:user._id});
+
+        if(!workSpace) return res.status(400).json({message:"error"})
+
+        const projects = await Project.find({workspace:workSpace._id}).populate({
+            path: 'tasks',
+            model: 'Task'
+        });
+
+        const tasks = projects.map(project => project.tasks.filter(task => task.status === 'Pendiente') ).flat();
+
+        if(!tasks) return res.status(400).json({message:"error"})
+
+        return res.status(200).json(tasks)
+    } catch (error) {
+        return res.status(500).json({message:"error interno del servidor"})
+    }
+}
