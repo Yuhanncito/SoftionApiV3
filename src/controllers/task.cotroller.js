@@ -144,14 +144,14 @@ export const getTasksPending = async(req,res)=>{
 
         if(!workSpace) return res.status(400).json({message:"error"})
 
-        const projects = await Project.find({workspace:workSpace._id}).populate({
-            path: 'tasks',
-            model: 'Task'
-        });
+        const projects = await Project.find({workspace:workSpace._id})
 
-        const tasks = projects.map(project => project.tasks.filter(task => task.status === 'Pendiente') ).flat();
+        const tasks = await Task.find({$or:[{userTasks:user._id},{projectRelation:{$in:projects.map(p=>p._id)}}]}).populate({
+            path: 'projectRelation',
+            model: 'Project',
+            select: 'name'
+        })
 
-        if(!tasks) return res.status(400).json({message:"error"})
 
         return res.status(200).json(tasks)
     } catch (error) {
