@@ -152,8 +152,13 @@ export const getTasksPending = async(req,res)=>{
             select: 'name'
         })
 
+        if(!tasks) return res.status(400).json({message:"error"})
 
-        return res.status(200).json(tasks)
+        const tasksPending = tasks.filter(t=>t.status === "Pendiente");
+
+
+        return res.status(200).json(tasksPending);
+        
     } catch (error) {
         return res.status(500).json({message:"error interno del servidor"})
     }
