@@ -3,7 +3,7 @@ import Privilege from "../models/privileges.model";
 import DaysWorking from "../models/daysWorking.model";
 
 
-const generateDaysWorks = async(req,res) =>{
+export const generateDaysWorks = async(req,res) =>{
     try{
         const countDays = await DaysWorking.estimatedDocumentCount();
 
@@ -52,7 +52,7 @@ const generateDaysWorks = async(req,res) =>{
     }
 }
 
-const generatePrivilege = async(req,res) =>{
+export const generatePrivilege = async(req,res) =>{
     try {
         const countPri = await Privilege.estimatedDocumentCount();
 
@@ -73,7 +73,7 @@ const generatePrivilege = async(req,res) =>{
         
     }
 }
-const generateQuestions = async(req,res) =>{
+export const generateQuestions = async(req,res) =>{
     try {
         const count = await Secret.estimatedDocumentCount();
 
@@ -104,7 +104,3 @@ const generateQuestions = async(req,res) =>{
         
     }
 }
-
-generateQuestions();
-generatePrivilege();
-generateDaysWorks();

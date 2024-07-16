@@ -1,7 +1,7 @@
 import  express  from "express";
 import morgan from "morgan";
 import cors from 'cors';
-import './libs/initialSetup';
+import {generateDaysWorks,generatePrivilege,generateQuestions} from  './libs/initialSetup';
 //routes
 import products from "./routes/producs.routes"
 import user from "./routes/user.routes"
@@ -11,7 +11,9 @@ import workspace from "./routes/workspace.routes"
 import invitation from "./routes/invitate.routes"
 import pair from "./routes/pair.routes"
 
-
+generateDaysWorks();
+generatePrivilege();
+generateQuestions();
 
 const app = express();
 
