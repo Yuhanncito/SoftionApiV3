@@ -11,9 +11,13 @@ import workspace from "./routes/workspace.routes"
 import invitation from "./routes/invitate.routes"
 import pair from "./routes/pair.routes"
 
-generateDaysWorks();
-generatePrivilege();
-generateQuestions();
+try{
+    await generateDaysWorks();
+    await generatePrivilege();
+    await generateQuestions();
+}catch(err){
+    console.log(err);
+}
 
 const app = express();
 
