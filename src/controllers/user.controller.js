@@ -348,7 +348,6 @@ export const getQuestbyId = async(req,res) => {
         res.status(500).json({message: "error interno del servidor"})
     }
 }
-<<<<<<< HEAD
 
 export const singUp2 = async(req,res) =>{
     try {
@@ -427,5 +426,3 @@ export const loginPairCode = async(req,res) =>{
         res.status(500).json({message:"error interno del servidor"})
     }
 }
-=======
->>>>>>> 970548f63ea6653d1ec67a1e1526833427111462
