@@ -59,6 +59,21 @@ export const insertProject = async (req,res) => {
 
 export const updateProject = async (req,res) => {
 
+    try {
+
+        const {id} = req.params
+        const {...updateFields} = req.body;
+
+        const project = await Project.findByIdAndUpdate(id,updateFields);
+
+        if(!project) return res.status(400).json({message:"error"});
+
+        return res.status(200).json({message:"ok"});
+        
+    } catch (error) {
+        return res.status(500).json({message:"error interno del servidor"})
+    }
+
 }
 
 export const deleteProject = async (req,res) => {

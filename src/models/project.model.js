@@ -27,6 +27,9 @@ const userSchema = new Schema({
     workspace:{
         type: Schema.Types.ObjectId,
         require: true
+    },
+    description:{
+        type: String
     }
     
 },{

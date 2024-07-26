@@ -17,7 +17,17 @@ export const getWorkspacesWithUser = async (req, res) =>{
             ]
         }).populate({
             path: 'projects',
-            model: 'Project'
+            model: 'Project',
+            populate:{
+                path:'tasks',
+                model:'Task',
+                select: 'nameTask status'
+            },
+            populate:{
+                path:'createBy',
+                model:'User',
+                select: 'name'
+            }
         }).populate({
             path: 'participates.user',
             model: 'User',
@@ -28,7 +38,7 @@ export const getWorkspacesWithUser = async (req, res) =>{
         }).populate({
             path: 'propetaryUser',
             model: 'User',
-            select: 'name lastName _id'
+            select: 'name email lastName _id'
         });
         if(!workSpaces.length) return res.status(400).json({message:"No se encontró registros"}) 
 
@@ -44,10 +54,9 @@ export const getWorkspacesWithId = async(req, res) => {
     try{
         const id = req.params.id;
 
-        const workSpaces = await WorkSpace.findById(id)
-        .populate({
+        const workSpaces = await WorkSpace.findById(id).populate({
             path: 'projects',
-            model: 'Project'
+            model: 'Project',
         }).populate({
             path: 'participates.user',
             model: 'User',
@@ -58,8 +67,9 @@ export const getWorkspacesWithId = async(req, res) => {
         }).populate({
             path: 'propetaryUser',
             model: 'User',
-            select: 'name lastName _id'
+            select: 'name email lastName _id'
         });
+
         if(!workSpaces) return res.status(400).json({message:"No se encontró registros"}) 
 
         res.status(200).json(workSpaces);

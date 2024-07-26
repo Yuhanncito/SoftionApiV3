@@ -15,6 +15,7 @@ try{
     await generateDaysWorks();
     await generatePrivilege();
     await generateQuestions();
+    
 }catch(err){
     console.log(err);
 }

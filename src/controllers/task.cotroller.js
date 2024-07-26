@@ -4,17 +4,51 @@ import Logs from '../models/logs.model';
 import { getUserId } from '../middlewares/authJWT';
 import WorkSpace from '../models/workSpace.model';
 
+
+export const getTaskByWorkspaceId = async (req,res) =>{
+    try {
+
+        const {id} = req.params;
+
+        if(!id) return res.status(400).json({message:"no workspace found"})
+
+        const workSpace = await WorkSpace.findById(id)
+
+        if(!workSpace) return res.status(400).json({message:"no workspace found"})
+
+        const ProjectsId = workSpace.projects;
+
+        if(!ProjectsId) return res.status(400).json({message:"no projects found"})
+
+        const tasksGlobal = [];
+
+        for (const id of ProjectsId) {
+                const tarea = await Task.find({projectRelation:id})
+                tasksGlobal.push(tarea);
+        }
+
+        const tasks = tasksGlobal.flat();
+
+        return res.status(200).json(tasks)
+    } catch (error) {
+        return res.status(500).json({message:"error interno del servidor tareas WorkSpaces"})
+    }
+}
+
 export const getTaskByProjectId = async (req,res) =>{
     try {
 
         const {projectRelation} = req.params;
 
-        const tasks = await Task.find({projectRelation:projectRelation}).populate({
+        const tasks = [];
+        const taskList = await Task.find({ projectRelation: projectRelation }).populate({
             path: 'userTasks',
             model: 'User',
             select: 'name'
-        })
-
+        });
+        for (const task of taskList) {
+            tasks.push(task);
+        }
         return res.status(200).json(tasks)
 
         

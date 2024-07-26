@@ -23,11 +23,12 @@ export const setInvitatio = async (req,res) => {
 		const invitationExist = await Invitation.findOne({$and: [{idPropietary: id._id}, {idParticipate: userExist._id}]})
 		if(invitationExist) return res.status(400).json({message:'Ya existe una invitación pendiente para este usuario en este espacio de trabajo',invitationExist})
 
-		if(workSpaceExist.participates.includes(userExist._id)) return res.status(400).json({message: "El usuario ya forma parte de tu área de trabajo"});
+		const participanteExistente = workSpaceExist.participates.some(participante => participante.user.toString() === userExist._id.toString());
+		if(participanteExistente) return res.status(400).json({message: "El usuario ya forma parte de tu área de trabajo"});
 		const newInvitation = new Invitation({
 			idPropietary:id,
-			idParticipate:userExist,
-			idWorkSpace:workSpaceExist
+			idParticipate:userExist._id,
+			idWorkSpace:workSpaceExist._id
 		})
 		
         const savedInvitation = await newInvitation.save();

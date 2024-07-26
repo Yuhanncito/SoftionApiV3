@@ -38,9 +38,6 @@ export const confirmSingUp = async (req,res) =>{
         expiresIn: 86400
     })
 
-
-    
-
     const newWorkSpace = new WorkSpace({
         workSpaceName:"WorkSpace",
         propetaryUser:userSaved._id,
@@ -267,7 +264,11 @@ export const getUser = async (req,res) =>{
         
         const decode = jwt.verify(token,config.SECRET)
     
-        const user = await User.findById(decode.id, {password:0,questionAnswer:0})
+        const user = await User.findById(decode.id, {password:0,questionAnswer:0}).populate({
+            path: 'questionKey',
+            model: 'Secret',
+            select: 'question'
+        });
     
         if(!user) return res.status(404).json({message:"no user found"})
     
@@ -378,6 +379,7 @@ export const pairCode = async(req,res) =>{
 
         const decode = jwt.verify(token,config.SECRET)
 
+        
         const user = await User.findById(decode.id, {password:0,questionAnswer:0})
 
         if(!user) return res.status(404).json({message:"no user found"})
