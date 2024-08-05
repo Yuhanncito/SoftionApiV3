@@ -6,7 +6,7 @@ const connectionDbLocal= 'mongodb://localhost:27017/softionpro';
 const connectionDbRemote= 'mongodb+srv://apiServerClient:apiServer123@softiondb.uy6dflb.mongodb.net/softionpro?retryWrites=true&w=majority';
 
 const connectWithRetry = () => {
-  mongoose.connect(connectionDbRemote)
+  mongoose.connect(connectionDbLocal)
   .then(db => console.log('DB está conectada'))
   .catch(err => {
     console.error('Error al conectar a la DB:', err);

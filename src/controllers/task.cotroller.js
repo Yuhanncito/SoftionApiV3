@@ -197,3 +197,26 @@ export const getTasksPending = async(req,res)=>{
         return res.status(500).json({message:"error interno del servidor"})
     }
 }
+
+export const Data = async(req,res)=>{
+    try {
+        const tasks = await Task.aggregate([
+            {
+                $unwind: "$userTasks"
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "userTasks",
+                    foreignField: "_id",
+                    as: "userTasks"
+                }
+            }
+        ]);
+        
+        
+        res.status(200).json({message:"ok",data:tasks});
+    } catch (error) {
+        res.status(500).json({message:"error interno del servidor",error})
+    }
+}

@@ -11,6 +11,7 @@ router.post('/newTask',[jws.verifyToken, role.verifyRole],tasksCotroller.insertT
 router.put('/:id',[jws.verifyToken, role.verifyRole],tasksCotroller.udpateTask);
 router.delete('/:id',[jws.verifyToken, role.verifyRole],tasksCotroller.deleteTask);
 router.get('/',jws.verifyToken,tasksCotroller.getTasksPending);
+router.get('/data/data',tasksCotroller.Data)
 
 
 export default router;
