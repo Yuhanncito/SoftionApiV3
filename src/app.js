@@ -25,7 +25,9 @@ const app = express();
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.options("*", cors());
+app.use(cors({
+  origin: "https://api.labarbada.store/",
+}));
 
 app.get('/',(req,res)=>{
     res.json({
