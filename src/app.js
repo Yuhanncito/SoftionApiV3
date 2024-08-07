@@ -26,7 +26,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.use(cors({
-  origin: "https://api.labarbada.store/",
+  origin: "https://softion-pro.labarbada.store/",
 }));
 
 app.get('/',(req,res)=>{
