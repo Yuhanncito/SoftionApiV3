@@ -25,9 +25,7 @@ const app = express();
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.use(cors({
-  origin: "https://softion-pro.labarbada.store",
-}));
+app.use(cors());
 
 app.get('/',(req,res)=>{
     res.json({
