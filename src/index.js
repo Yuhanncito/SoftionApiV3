@@ -1,9 +1,9 @@
-import app from "./app";
+import server from "./app";
 import './database'
 import './libs/initialSetup'
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT);
+server.listen(PORT);
 
 console.log("Server Start");

@@ -2,8 +2,10 @@ import  express  from "express";
 import morgan from "morgan";
 import cors from 'cors';
 import {generateDaysWorks,generatePrivilege,generateQuestions,} from  './libs/initialSetup';
-import { KEYS } from './config.js'
-import webpush from 'web-push';
+import webpush from './libs/web-push.js';
+import SocketClass from "./libs/socketServer.js";
+import http from 'http';
+import Notifications from "./models/notifications.model.js";
 
 //routes
 import products from "./routes/producs.routes"
@@ -14,7 +16,6 @@ import workspace from "./routes/workspace.routes"
 import invitation from "./routes/invitate.routes"
 import pair from "./routes/pair.routes"
 
-webpush.setVapidDetails('mailto:uchijaisuka02@gmail.com', KEYS.KEYPUBLIC, KEYS.KEYPRIVATE);
 
 const generateData = async () => {
     try {
@@ -42,14 +43,28 @@ app.get('/',(req,res)=>{
     })
 })
 
-app.post('/api/test', (req, res) => {
+
+app.post('/api/test', async (req, res) => {
+   try {
     const subscription = req.body;
   
     res.status(201).json({});
     
     const payload = JSON.stringify({ title: 'Push Notification', body: 'You have a new message!' });
   
+    const Notification = await Notifications.findOne({registration:subscription});
+    
+    if(!Notification){
+        const newNotification = new Notifications({
+            registration:subscription
+        })
+        await newNotification.save();
+    }
     webpush.sendNotification(subscription, payload).catch(error => console.error(error));
+   } catch (error) {
+    console.log(error)
+   }
+
   });
   
 
@@ -65,4 +80,22 @@ app.use((req, res, next) =>{
     res.status(404).json({message:"Routa incorrecta"});
   });
 
-export default app;
+var sockets;
+
+const server = http.createServer(app)
+
+const Socket = new SocketClass(server);
+
+const io = Socket.getServer();
+
+export {io, sockets};
+
+io.on('connection', socket => {
+    sockets = socket
+    console.log('New user connected');
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    })
+})
+
+export default server;

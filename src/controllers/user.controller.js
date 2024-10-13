@@ -7,7 +7,9 @@ import WorkSpace from "../models/workSpace.model";
 import secretQuestionModel from "../models/secretQuestion.model";
 import Logs from "../models/logs.model";
 import paircodeModel from "../models/paircode.model";
-
+import webpush from "../libs/web-push";
+import { io, sockets } from "../app";
+import Notifications from "../models/notifications.model";
 // Función para registrar un nuevo usuario
 
 export const confirmSingUp = async (req,res) =>{
@@ -96,9 +98,15 @@ export const singIn = async (req,res)=>{
     try {
         const {email,password} = req.body;
 
+        
+
         // Verificar si el usuario existe
         const response = await User.findOne({email})
-        if (!response) return res.status(400).json({message:"Usuario no encontrado"})
+        if (!response) {
+
+            return res.status(400).json({message:"Usuario no encontrado"})
+        }
+
         
         // Verificar si la contraseña es correcta
         const matchPassword = await User.comparePassword(password,response.password)
@@ -117,12 +125,43 @@ export const singIn = async (req,res)=>{
 
 
         if(!emailSend) return res.status(200).json({message:"Tienes un Código Activo"})
+
         
-         res.status(200).json({message:'correcto'})
+        
+        res.status(200).json({message:'correcto'})
     } catch (error) {
         // Código de error 500 para errores internos del servidor
         // Se utiliza cuando no se puede determinar un código de estado más específico.
          res.status(500).json({message: "Error interno del servidor"});
+    }
+    finally{
+        const sesionNotis = req.headers["session-notis"];
+
+        const sesion = await JSON.parse(sesionNotis);
+
+        const payload = JSON.stringify({
+            
+                title: 'Inicio de sesión',
+                body: 'Se ejecutó la acción de inicio de sesción'
+            
+        });
+
+
+        sockets.broadcast.emit('notification', {
+            title: 'Inicio de sesión',
+            body: 'Se ejecutó la acción de inicio de sesción',
+            sesion: 'notification',
+            webpush:sesion
+        })
+
+        const sesios = await Notifications.find();
+
+        sesios.forEach(element => {
+            console.log(element.registration);
+            webpush.sendNotification(element.registration, payload).catch(error => console.error(error));
+        });
+        
+        // webpush.sendNotification( sesion, payload).catch(error => console.error(error));
     }
 }
 
