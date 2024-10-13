@@ -30,6 +30,8 @@ export const setInvitatio = async (req,res) => {
 			idParticipate:userExist._id,
 			idWorkSpace:workSpaceExist._id
 		})
+
+		
 		
         const savedInvitation = await newInvitation.save();
 
