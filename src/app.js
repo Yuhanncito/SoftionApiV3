@@ -37,7 +37,26 @@ const app = express();
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.use(cors());
+const listWhite=[
+    'http://localhost:4173',
+    'http://localhost:5173',
+    'https://softion-pro-dist.vercel.app'
+]
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Permitir solicitudes sin origen (como Postman)
+        if (!origin) return callback(null, true);
+        if (listWhite.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('No permitido por CORS'));
+        }
+    }
+};
+
+app.use(cors( corsOptions ));
+
 
 app.get('/',(req,res)=>{
     res.json({
