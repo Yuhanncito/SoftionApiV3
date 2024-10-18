@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken"
-import config from "../config"
 import UserModel from "../models/User.model";
 
 export const verifyToken = async (req,res,next) =>{
@@ -8,7 +7,7 @@ export const verifyToken = async (req,res,next) =>{
     
     if(!token) return res.status(403).json({message:"No token provider"})
     
-    const decode = jwt.verify(token,config.SECRET)
+    const decode = jwt.verify(token,process.env.SECRET)
 
     const user = await UserModel.findById(decode.id, {password:0})
 
@@ -25,7 +24,7 @@ export const getUserId = async (token) =>{
       
       if(!token) return "no token"
       
-      const decode = jwt.verify(token,config.SECRET)
+      const decode = jwt.verify(token,process.env.SECRET)
   
       const user = await UserModel.findById(decode.id, {password:0})
   

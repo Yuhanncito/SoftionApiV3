@@ -1,20 +1,19 @@
 import User from "../models/User.model";
 import Confirm from "../models/confirm.model";
 import  jwt  from "jsonwebtoken";
-import config from "../config";
 import {verifyEmail} from "../middlewares/authEmail"
 import WorkSpace from "../models/workSpace.model";
 import secretQuestionModel from "../models/secretQuestion.model";
 import Logs from "../models/logs.model";
 import paircodeModel from "../models/paircode.model";
-import webpush from "../libs/web-push";
-import { io, sockets } from "../app";
 import Notifications from "../models/notifications.model";
+import { saveUserInNotification, sendNotifications } from "../libs/notifications";
 // Función para registrar un nuevo usuario
 
 export const confirmSingUp = async (req,res) =>{
     try{
         const {name,lastName,email,password,secretCode,secret,respuestaSecreta} = req.body;
+        const notifications = req.headers["x-access-notification"];
 
         const response = await Confirm.findOne({secretCode})
 
@@ -36,7 +35,7 @@ export const confirmSingUp = async (req,res) =>{
     const userSaved = await newUser.save();
 
     // Crear un token para el usuario
-    const token = jwt.sign({id: userSaved._id},config.SECRET,{
+    const token = jwt.sign({id: userSaved._id},process.env.SECRET,{
         expiresIn: 86400
     })
 
@@ -55,6 +54,10 @@ export const confirmSingUp = async (req,res) =>{
     })
 
     const logsSaved = logs.save();
+
+    if(notifications){
+        await saveUserInNotification(notifications,userSaved._id);
+    }
 
     res.status(200).json({token, message:'ok'});
     }
@@ -134,41 +137,13 @@ export const singIn = async (req,res)=>{
         // Se utiliza cuando no se puede determinar un código de estado más específico.
          res.status(500).json({message: "Error interno del servidor"});
     }
-    finally{
-        const sesionNotis = req.headers["session-notis"];
-
-        const sesion = await JSON.parse(sesionNotis);
-
-        const payload = JSON.stringify({
-            
-                title: 'Inicio de sesión',
-                body: 'Se ejecutó la acción de inicio de sesción'
-            
-        });
-
-
-        sockets.broadcast.emit('notification', {
-            title: 'Inicio de sesión',
-            body: 'Se ejecutó la acción de inicio de sesción',
-            sesion: 'notification',
-            webpush:sesion
-        })
-
-        const sesios = await Notifications.find();
-
-        sesios.forEach(element => {
-            console.log(element.registration);
-            webpush.sendNotification(element.registration, payload).catch(error => console.error(error));
-        });
-        
-        // webpush.sendNotification( sesion, payload).catch(error => console.error(error));
-    }
 }
 
 
 export const confirmSingIn = async (req,res) =>{
     try{
         const {email,secretCode} = req.body;
+        const notifications = req.headers["x-access-notification"];
 
         const response = await Confirm.findOne({secretCode})
         if (!response) return res.status(400).json({message:"No se encontro el codigo"})
@@ -178,7 +153,7 @@ export const confirmSingIn = async (req,res) =>{
         if(!user) return res.status(400).json({message:"usuario no encontrado"})
     
         // Crear un token para el usuario
-        const token = jwt.sign({id: user._id},config.SECRET,{
+        const token = jwt.sign({id: user._id},process.env.SECRET,{
             expiresIn: 86400
         })
 
@@ -192,6 +167,8 @@ export const confirmSingIn = async (req,res) =>{
         const logSaved = log.save();
 
         const deleteCode = await Confirm.findOneAndDelete({email,secretCode})   
+
+        if(notifications !== null) await saveUserInNotification(notifications,user._id);
 
         res.status(200).json({token,message:"ok"});
 
@@ -251,7 +228,7 @@ export const forgotPasswordVerify = async (req,res) =>{
         if(!userData) return res.status(400).json({message:'usuario no encontrado'})
 
         // Crear un token para el usuario
-        const token = jwt.sign({id: userData._id},config.SECRET,{
+        const token = jwt.sign({id: userData._id},process.env.SECRET,{
             expiresIn: 300
         })
 
@@ -273,7 +250,7 @@ export const updatePassword = async (req,res) =>{
 
         const response = await User.findOneAndUpdate({email},{password:encrypt})
         
-        const token = jwt.sign({id: response._id},config.SECRET,{
+        const token = jwt.sign({id: response._id},process.env.SECRET,{
             expiresIn: 86400
         })
 
@@ -301,7 +278,7 @@ export const getUser = async (req,res) =>{
         
         if(!token) return res.status(403).json({message:"No token provider"})
         
-        const decode = jwt.verify(token,config.SECRET)
+        const decode = jwt.verify(token,process.env.SECRET)
     
         const user = await User.findById(decode.id, {password:0,questionAnswer:0}).populate({
             path: 'questionKey',
@@ -416,7 +393,7 @@ export const pairCode = async(req,res) =>{
         
         if(!token) return res.status(403).json({message:"No token provider"})
 
-        const decode = jwt.verify(token,config.SECRET)
+        const decode = jwt.verify(token,process.env.SECRET)
 
         
         const user = await User.findById(decode.id, {password:0,questionAnswer:0})
@@ -457,7 +434,7 @@ export const loginPairCode = async(req,res) =>{
 
         if(!user) return res.status(404).json({message:"no user found"})
 
-        const token = jwt.sign({id:user._id},config.SECRET,{    
+        const token = jwt.sign({id:user._id},process.env.SECRET,{    
             expiresIn:86400 //24 horas  
         })
 

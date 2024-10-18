@@ -1,7 +1,30 @@
 import webpush from 'web-push';
-import { KEYS } from '../config.js';
 
-webpush.setVapidDetails('mailto:uchijaisuka02@gmail.com', KEYS.KEYPUBLIC, KEYS.KEYPRIVATE);
+const setUp = () => {
+  
+  const mail = process.env.MAILUSER;
+  const KEYPUBLIC = process.env.KEYPUBLIC;
+  const KEYPRIVATE = process.env.KEYPRIVATE;
+
+  webpush.setVapidDetails('mailto:' + mail, KEYPUBLIC, KEYPRIVATE);
+  console.log('Configuración de VAPID establecida correctamente.');
+
+  return webpush;
+}
+
+export const getWebpush = () =>{
+    return webpush;
+};
 
 
-export default  webpush;
+export default setUp;
+
+export const sendNotification = (users, title, message) =>{
+    if (!users || !title || !message) return;
+
+    const payload = JSON.stringify({title:title, message:message});
+
+    users.forEach(user => {
+        webpush.sendNotification(users.registration, payload);
+    })
+}

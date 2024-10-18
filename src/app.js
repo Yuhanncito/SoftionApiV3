@@ -1,10 +1,12 @@
 import  express  from "express";
+import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from 'cors';
 import {generateDaysWorks,generatePrivilege,generateQuestions,} from  './libs/initialSetup';
-import webpush from './libs/web-push.js';
-import SocketClass from "./libs/socketServer.js";
-import http from 'http';
+
+dotenv.config();
+
+import webpushSetUp from './libs/web-push.js';
 import Notifications from "./models/notifications.model.js";
 
 //routes
@@ -28,7 +30,7 @@ const generateData = async () => {
 }
 
 generateData();
-
+const webpush = webpushSetUp();
 const app = express();
 
 
@@ -43,28 +45,31 @@ app.get('/',(req,res)=>{
     })
 })
 
-
+var noti = false;
 app.post('/api/test', async (req, res) => {
-   try {
-    const subscription = req.body;
-  
-    res.status(201).json({});
-    
-    const payload = JSON.stringify({ title: 'Push Notification', body: 'You have a new message!' });
-  
-    const Notification = await Notifications.findOne({registration:subscription});
-    
-    if(!Notification){
-        const newNotification = new Notifications({
-            registration:subscription
-        })
-        await newNotification.save();
+    if(noti) return res.status(200).json({});
+    noti = true;
+    try {
+        const subscription = req.body;
+        const Notification = await Notifications.findOne({registration:subscription});
+        res.status(201).json({});
+        const payload = JSON.stringify({ title: 'Push Notification', body: 'You have a new message!' });
+        if(!Notification){
+            const newNotification = new Notifications({
+                registration:subscription
+            })
+            await newNotification.save();
+        }
+        webpush.sendNotification(subscription, payload).catch(error => {
+            console.error(error);
+        });
+        console.log('notificacion enviada')
+    } catch (error) {
+        console.log(error)
     }
-    webpush.sendNotification(subscription, payload).catch(error => console.error(error));
-   } catch (error) {
-    console.log(error)
-   }
-
+    finally{
+        noti = false;
+    }
   });
   
 
@@ -80,22 +85,5 @@ app.use((req, res, next) =>{
     res.status(404).json({message:"Routa incorrecta"});
   });
 
-var sockets;
 
-const server = http.createServer(app)
-
-const Socket = new SocketClass(server);
-
-const io = Socket.getServer();
-
-export {io, sockets};
-
-io.on('connection', socket => {
-    sockets = socket
-    console.log('New user connected');
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    })
-})
-
-export default server;
+export default app;

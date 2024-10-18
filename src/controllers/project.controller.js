@@ -3,6 +3,7 @@ import { getUserId } from '../middlewares/authJWT';
 import Task from '../models/task.model';
 import WorkSpace from '../models/workSpace.model';
 import Logs from '../models/logs.model';
+import { sendNotifications } from '../libs/notifications';
 
 export const getProjects = async (req,res) => {
     try{
@@ -47,6 +48,10 @@ export const insertProject = async (req,res) => {
 
         const logSaved = log.save();
         
+        await sendNotifications(user._id,workspaceid,{
+            title: 'Creacion de Proyecto', body: `${user.name} ha creado un nuevo proyecto`
+        })
+
         return res.status(200).json({message:'ok'});
         
         //return res.status(200).json({message:'ok'});
