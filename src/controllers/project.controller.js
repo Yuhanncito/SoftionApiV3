@@ -69,9 +69,16 @@ export const updateProject = async (req,res) => {
         const {id} = req.params
         const {...updateFields} = req.body;
 
+        const token = req.headers["x-access-token"];
+        const user = await getUserId(token);
+
         const project = await Project.findByIdAndUpdate(id,updateFields);
 
         if(!project) return res.status(400).json({message:"error"});
+
+        await sendNotifications(user._id,project.workspace,{
+            title: 'Actualizacion de Proyecto', body: `${user.name} ha actualizado un nuevo proyecto`
+        })
 
         return res.status(200).json({message:"ok"});
         
@@ -84,6 +91,9 @@ export const updateProject = async (req,res) => {
 export const deleteProject = async (req,res) => {
     try{
         const idProject = req.params.id;
+
+        const token = req.headers["x-access-token"];
+        const user = await getUserId(token);
         
         const deletedProject = await Project.findByIdAndDelete(idProject);
 
@@ -107,6 +117,10 @@ export const deleteProject = async (req,res) => {
         })
 
         const logSaved = log.save();
+
+        await sendNotifications(user._id,workSpace._id,{
+            title: 'Creacion de Proyecto', body: `${user.name} ha creado un nuevo proyecto`
+        })
 
         return res.status(200).json({message:"ok"})
 

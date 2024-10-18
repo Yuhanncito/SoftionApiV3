@@ -46,7 +46,6 @@ export const getWorkspacesWithUser = async (req, res) =>{
         });
         if(workSpaces.length === 0) return res.status(400).json({message:"No se encontró registros"}) 
 
-            console.log(workSpaces,'workspaces')
 
         res.status(200).json(workSpaces);
     } catch (error) {

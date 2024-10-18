@@ -3,6 +3,7 @@ import Project from '../models/project.model';
 import Logs from '../models/logs.model';
 import { getUserId } from '../middlewares/authJWT';
 import WorkSpace from '../models/workSpace.model';
+import { sendNotifications } from '../libs/notifications';
 
 
 export const getTaskByWorkspaceId = async (req,res) =>{
@@ -82,7 +83,7 @@ export const insertTask = async(req,res)=>{
 
         const taskSaved = await newTask.save();
 
-        const projectUpdate = await Project.updateOne({_id : projectRelation}, {$push:{ tasks : taskSaved}});
+        const projectUpdate = await Project.findByIdAndUpdate( projectRelation, {$push:{ tasks : taskSaved}});
 
         if(!projectUpdate) return res.status(400).json({message:"error"})
 
@@ -91,6 +92,10 @@ export const insertTask = async(req,res)=>{
             ipClient:req.ip,
             date:new Date(),
             user:user._id
+        })
+
+        await sendNotifications(user._id,projectUpdate.workspace,{
+            title: 'Creacion de Tarea', body: `${user.name} ha creado una nueva tarea`
         })
 
         const logSaved = log.save();
@@ -125,7 +130,14 @@ export const udpateTask = async(req,res)=>{
             user:user._id
         }) 
 
+        const project = await Project.findById(task.projectRelation);
+
         const logSaved = log.save();
+
+        await sendNotifications(user._id,project.workspace,{
+            title: 'Actualizacion de Tarea', body: `${user.name} ha actualizado una nueva tarea`
+        })
+
         
         res.status(200).json({message:'ok'})
     }
@@ -147,7 +159,7 @@ export const deleteTask = async(req,res)=>{
 
         if(!task) return res.status(400).json({message:"Tarea no válida"})
 
-        const taskUpdates = await Project.updateOne({_id:task.projectRelation},{$pull:{tasks:task._id}})
+        const taskUpdates = await Project.findByIdAndUpdate(task.projectRelation,{$pull:{tasks:task._id}})
 
         if(!taskUpdates) return res.status(400).json({message:"error"})
 
@@ -159,6 +171,10 @@ export const deleteTask = async(req,res)=>{
         })
 
         const logSaved = log.save();
+
+        await sendNotifications(user._id,taskUpdates.workspace,{
+            title: 'Actualizacion de Tarea', body: `${user.name} ha actualizado una nueva tarea`
+        })
 
         res.status(200).json({message:'ok'})
     } 

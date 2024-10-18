@@ -50,7 +50,9 @@ export const sendNotifications = async (tocken, workSpaceId, payload) => {
         
         users.forEach(async user => {
            const notification = await Notifications.findOne({tocken:user});
-           if(notification) webpush.sendNotification(notification.registration, JSON.stringify(payload));
+           if(notification) {
+            if (notification.tocken !== user) webpush.sendNotification(notification.registration, JSON.stringify(payload));
+        }
         })
 
         return true;
