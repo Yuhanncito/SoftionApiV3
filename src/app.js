@@ -45,8 +45,9 @@ app.get('/',(req,res)=>{
     })
 })
 
-var noti = false;
+
 app.post('/api/test', async (req, res) => {
+    var noti = false;
     if(noti) return res.status(200).json({});
     noti = true;
     try {
