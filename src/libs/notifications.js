@@ -41,14 +41,12 @@ export const sendNotifications = async (tocken, workSpaceId, payload) => {
         let users = [];
         const workSpace = await WorkSpace.findOne({_id:workSpaceId});
         if(!workSpace) return false;
+        users.push(workSpace.propetaryUser._id);
+        if(workSpace.participates.length !== 0) users.push(...workSpace.participates.map(p => p.user._id));
 
-        users.push(workSpace.propetaryUser);
-        if(workSpace.participates.length !== 0) users.push(workSpace.participates.map(p => p.user._id));
-
-        console.log('Usuarios Encontrados',users);
     
         
-        users.forEach(async user => {
+        users.forEach(async (user, index) => {
            const notification = await Notifications.findOne({tocken:user});
            if(notification) {
             if (notification.tocken !== user) {
