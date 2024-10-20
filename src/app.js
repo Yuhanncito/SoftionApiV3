@@ -52,11 +52,15 @@ const corsOptions = {
         } else {
             callback(new Error('No permitido por CORS'));
         }
-    }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token','x-access-notification'],
 };
 
 app.use(cors( corsOptions ));
 
+app.options('*', cors( corsOptions ));
 
 app.get('/',(req,res)=>{
     res.json({
