@@ -44,6 +44,7 @@ export const sendNotifications = async (tocken, workSpaceId, payload) => {
         users.push(workSpace.propetaryUser._id);
         if(workSpace.participates.length !== 0) users.push(...workSpace.participates.map(p => p.user._id));
 
+        console.log('users ids encontrados', users);
     
         
         users.forEach(async (user, index) => {
