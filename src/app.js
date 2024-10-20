@@ -17,7 +17,25 @@ import task from "./routes/task.routes"
 import workspace from "./routes/workspace.routes"
 import invitation from "./routes/invitate.routes"
 import pair from "./routes/pair.routes"
-
+const listWhite=[
+    'http://localhost:4173',
+    'http://localhost:5173',
+    'https://softion-pro-dist.vercel.app'
+]
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Permitir solicitudes sin origen (como Postman)
+        if (!origin) return callback(null, true);
+        if (listWhite.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('No permitido por CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token','x-access-notification'],
+};
 
 const generateData = async () => {
     try {
@@ -36,31 +54,9 @@ const app = express();
 
 app.use(morgan('dev'));
 app.use(express.json());
-
-const listWhite=[
-    'http://localhost:4173',
-    'http://localhost:5173',
-    'https://softion-pro-dist.vercel.app'
-]
-
-const corsOptions = {
-    origin: function (origin, callback) {
-        // Permitir solicitudes sin origen (como Postman)
-        if (!origin) return callback(null, true);
-        if (listWhite.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('No permitido por CORS'));
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token','x-access-notification'],
-};
-
 app.use(cors( corsOptions ));
-
 app.options('*', cors( corsOptions ));
+
 
 app.get('/',(req,res)=>{
     res.json({
