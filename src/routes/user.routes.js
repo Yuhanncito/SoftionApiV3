@@ -15,5 +15,6 @@ router.get('/:email',userController.getUserByEmail)
 router.post('/secret',userController.forgotPasswordBySecretQuestion)
 router.get('/question/:id',userController.getQuestbyId)
 router.post('/singup2',userController.singUp2)
+router.put('/update',jws.verifyToken,userController.updateImagenUser)
 
 export default router;

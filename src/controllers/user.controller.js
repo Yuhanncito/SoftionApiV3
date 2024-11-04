@@ -8,6 +8,8 @@ import Logs from "../models/logs.model";
 import paircodeModel from "../models/paircode.model";
 import Notifications from "../models/notifications.model";
 import { saveUserInNotification, sendNotifications } from "../libs/notifications";
+import { uploadImage } from "../libs/cloundinaryConfig";
+import { getUserId  } from "../middlewares/authJWT";
 // Función para registrar un nuevo usuario
 
 export const confirmSingUp = async (req,res) =>{
@@ -100,8 +102,6 @@ export const singUp = async (req,res)=>{
 export const singIn = async (req,res)=>{
     try {
         const {email,password} = req.body;
-
-        
 
         // Verificar si el usuario existe
         const response = await User.findOne({email})
@@ -268,6 +268,24 @@ export const updatePassword = async (req,res) =>{
 
     }catch(err){
         res.status(500).json({token:null,message:"Error interno del servidor"});
+    }
+}
+
+export const updateImagenUser = async (req,res) =>{
+    try{
+        const token = req.headers["x-access-token"];
+        const id = await getUserId(token);
+        const {imagen} = req.body;
+
+        const imageUploaded = await uploadImage(imagen);
+
+        if( !imageUploaded.success ) return res.status(400).json({message:"Error al subir la imagen"})
+        
+        const imageUpdated = await User.findByIdAndUpdate( id, {profileImage:imageUploaded.public_id} );
+
+        res.status(200).json({message:'ok'})
+    }catch(err){
+        res.status(500).json({message:"Error interno del servidor"});
     }
 }
 

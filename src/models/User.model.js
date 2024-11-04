@@ -36,6 +36,9 @@ const userSchema = new Schema({
     questionAnswer:{
         type:String,
         require:true
+    },
+    profileImage:{
+        type:String,
     }
 },{
     timestamps: true,
