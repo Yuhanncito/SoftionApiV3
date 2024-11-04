@@ -56,7 +56,7 @@ export const uploadImage = async (file) => {
             .then((result) => {
                 response = {
                     success: true,
-                    public_id: uploadResult?.public_id,
+                    public_id: result.public_id,
                 }
             })
             .catch((error) => {

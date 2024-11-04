@@ -278,10 +278,22 @@ export const updateImagenUser = async (req,res) =>{
         const {imagen} = req.body;
 
         const imageUploaded = await uploadImage(imagen);
+        
+        console.log( imageUploaded )
 
         if( !imageUploaded.success ) return res.status(400).json({message:"Error al subir la imagen"})
         
-        const imageUpdated = await User.findByIdAndUpdate( id, {profileImage:imageUploaded.public_id} );
+        const imageUpdated = await User.findOneAndUpdate(
+            { _id: id },
+            { profileImage: imageUploaded.public_id },
+            { new: true }
+        );
+
+        if (!imageUpdated) {
+            return res.status(400).json({ message: "No se pudo actualizar la imagen" });
+        }
+
+        console.log(imageUpdated)
 
         res.status(200).json({message:'ok'})
     }catch(err){
