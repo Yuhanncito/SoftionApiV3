@@ -20,7 +20,9 @@ import pair from "./routes/pair.routes"
 const listWhite=[
     'http://localhost:4173',
     'http://localhost:5173',
-    'https://softion-pro-dist.vercel.app'
+    'https://softion-pro-dist.vercel.app',
+    'https://softion-pro-dev.vercel.app',
+    'https://softion-pro.vercel.app'
 ]
 const corsOptions = {
     origin: function (origin, callback) {
