@@ -295,7 +295,7 @@ export const updateImagenUser = async (req,res) =>{
 
         console.log(imageUpdated)
 
-        res.status(200).json({message:'ok'})
+        res.status(200).json({message:'ok',public_id:imageUploaded.public_id})
     }catch(err){
         res.status(500).json({message:"Error interno del servidor"});
     }

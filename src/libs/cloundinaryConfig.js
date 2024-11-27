@@ -60,12 +60,14 @@ export const uploadImage = async (file) => {
                 }
             })
             .catch((error) => {
+                console.log(error);
                 response = {
                     success: false
                 }
             })
             return response
     } catch (error) {
+        console.log(error);
         return {
             success: false
         };
