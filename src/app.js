@@ -3,8 +3,27 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from 'cors';
 import {generateDaysWorks,generatePrivilege,generateQuestions,} from  './libs/initialSetup';
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node'
 
 dotenv.config();
+
+Sentry.init({
+    dsn: "https://2bc93e973e57cee925df0ac55e5a6580@o4508366582448128.ingest.us.sentry.io/4508372011909120",
+    integrations: [
+      nodeProfilingIntegration(),
+    ],
+    // Tracing
+    tracesSampleRate: 1.0, //  Capture 100% of the transactions
+  });
+
+Sentry.profiler.startProfiler();
+
+Sentry.startSpan({
+    name: "My First Transaction",
+  }, () => {
+    // the code executing inside the transaction will be wrapped in a span and profiled
+  });
 
 import webpushSetUp from './libs/web-push.js';
 import Notifications from "./models/notifications.model.js";
@@ -107,6 +126,8 @@ app.use('/api/pair',pair);
 app.use((req, res, next) =>{
     res.status(404).json({message:"Routa incorrecta"});
   });
+
+Sentry.setupExpressErrorHandler(app);
 
 
 export default app;

@@ -6,13 +6,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon ./index.js --exec babel-node",
-    "build": "babel src --out-dir build",
-    "start": "node build/index.js"
+    "build": "babel src --out-dir build && npm run sentry:sourcemaps",
+    "start": "node build/index.js",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org uthh-zx --project node-express ./build && sentry-cli sourcemaps upload --org uthh-zx --project node-express ./build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/cli": "^2.39.1",
+    "@sentry/node": "^8.41.0",
+    "@sentry/profiling-node": "^8.41.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
