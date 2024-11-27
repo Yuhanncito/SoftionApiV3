@@ -17,6 +17,7 @@ import task from "./routes/task.routes"
 import workspace from "./routes/workspace.routes"
 import invitation from "./routes/invitate.routes"
 import pair from "./routes/pair.routes"
+import apps from "./routes/app.routes"
 const listWhite=[
     'http://localhost:4173',
     'http://localhost:5173',
@@ -94,7 +95,7 @@ app.post('/api/test', async (req, res) => {
     }
   });
   
-
+app.use('/api/apps',apps);
 app.use('/api/products',products);
 app.use('/api/auth',user);
 app.use('/api/projects',project);
