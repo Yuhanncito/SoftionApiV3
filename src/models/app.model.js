@@ -2,9 +2,18 @@ import { Schema, model } from "mongoose";
 
 const userSchema = new Schema(
   {
-    url: String,
-    nombre: String,
-    icono: String,
+    url: {
+      type: String,
+      require: true,
+    },
+    nombre:{
+        type: String,
+        require: true,
+      },
+    icono: {
+        type: String,
+        require: true,
+      },
   },
   {
     timestamps: true,
